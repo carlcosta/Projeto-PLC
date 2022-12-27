@@ -4,6 +4,8 @@ import os
 import sys
 from tp_lexer import tokens
 
+# shift+alt+f
+
 
 def p_program(p):
     "program : '{' MAIN body '}' "
@@ -15,6 +17,8 @@ def p_body(p):
     "body : declarations commands"
     p[0] = p[1] + 'START\n' + p[2] + 'STOP'
 # corpo do programa contém declarações e comandos a realizar
+
+# region DECLARATIONS FUNCTIONS
 
 
 def p_empty_declarations(p):
@@ -36,8 +40,10 @@ def p_int_declaration(p):
         p[0] = "ERROR"
         print("Multiple variable declaration " + p[2])
     else:
-        parser.variables[p[2]]
+        parser.variables[p[2]] = parser.count
+        parser.values[p[2]] = 0
         p[0] = 'PUSHI 0\n'
+        parser.count += 1
 # declaração de um inteiro sem valor || int ID
 
 
@@ -48,8 +54,15 @@ def p_int_num_declaration(p):
         p[0] = "ERROR"
         print("Multiple variable declaration " + p[2])
     else:
+        parser.variables[p[2]] = parser.count
+        parser.values[p[2]] = int(p[4])
         p[0] = "PUSHI "+str(p[4])+"\n"
+        parser.count += 1
 # declaração de int id com um certo valor || ex: int num1 = 4
+
+# endregion
+
+# region ALL COMMANDS FUNCTIONS
 
 
 def p_empty_commands(p):
@@ -63,35 +76,212 @@ def p_commands(p):
     p[0] = p[1]+p[2]
 # especificação dos comandos 1 ou mais a realizar
 
+# region PRINT COMMAND FUNCTIONS
+
 
 def p_print_command(p):
-    "command : cmd_print"
+    "command : cmd_prints"
     p[0] = p[1]
 # especificação do cmd_print (será desenvolvido as várias alternativas de print)
 
 
-def p_cmd_print_all(p):
-    "cmd_print : PRINT cmd_prints prints "
-    p[0] = str(p[2])+str(p[3])
+def p_cmd_prints_all(p):
+    "cmd_prints : PRINT '(' cmd_print prints ')' "
+    p[0] = str(p[3])+str(p[4])
 # cmd_print função geral
 
 
-def p_cmd_print(p):
-    "prints : '+' cmd_prints prints"
+def p_cmd_prints(p):
+    "prints : '+' cmd_print prints "
     p[0] = p[2] + p[3]
 # desenvolvimento de cmd_print
 
 
-def p_empty_cmd_print(p):
+def p_empty_cmd_prints(p):
     "prints :"
     p[0] = ""
 # cmd_print vazio
 
 
 def p_print_id_command(p):
-    "cmd_prints : PRINT '(' ID ')'"
-    p[0] = p[3][3]+"WRITEI\n"
-# definição print(id)
+    "cmd_print : Id"
+    p[0] = p[1][1]+"WRITEI\n"
+# comando para dar print a um Id
+
+
+def p_print_str_command(p):
+    "cmd_print : STR"
+    p[0] = "PUSHS " + p[1] + "\n" + "WRITES\n"
+# comando para dar print a uma STR
+
+# endregion
+
+# region READ COMMAND FUNCTIONS
+
+
+def p_read_command(p):
+    "command : cmd_read"
+    p[0] = p[1]
+
+
+def p_read_id_command(p):
+    "cmd_read : READ Id"
+    p[0] = "READ\nATOI\n" + p[2][0]
+
+
+# endregion
+
+# region IF COMMAND // IF ELSE COMMAND FUNCTIONS
+
+
+def p_if_command(p):
+    "commands : cmd_if"
+    p[0] = p[1]
+
+
+def p_cmd_if(p):
+    "cmd_if : IF condition '{' commands '}'"
+    p[0] = str(p[2])+"JZ IF " + str(parser.label) + "\n" + \
+        str(p[4])+"IF"+str(parser.label)+":\n"
+
+    parser.label += 1
+
+
+def p_if_else_command(p):
+    "commands : cmd_if_else"
+    p[0] = p[1]
+
+
+def p_cmd_if_else(p):
+    "cmd_if_else : IF condition '{' commands '}' ELSE '{' commands '}'"
+    p[0] = p[2] + "JZ IF " + str(parser.label)+"\n"+p[4]+"JUMP IFEND" + str(
+        parser.label) + "\nIF" + str(parser.label) + ":\n"+p[8]+"IFEND"+str(parser.label)+":\n"
+    parser.label += 1
+# endregion
+
+
+# endregion
+
+
+# region CONDITIONS FUNCTIONS
+
+def p_condition(p):
+    "condition : '(' context ')'"
+    p[0] = p[2]
+
+
+def p_condition_Neg(p):
+    "condition : NOT '(' context ')'"
+    p[0] = str(p[3])+"NOT\n"
+
+
+def p_condition_AND(p):
+    "condition : condition AND condition"
+    p[0] = str(p[1])+str(p[3]) + "MUL\n"
+
+
+def p_condition_OR(p):
+    "condition : condition OR condition"
+    p[0] = str(p[1])+str(p[3]) + "ADD\n"
+
+
+def p_condition_EQUALS(p):
+    "context : exp EQUALS exp"
+    p[0] = str(p[1][0])+str(p[3][0])+"EQUAL\n"
+
+
+def p_condition_GREATER(p):
+    "context : exp '>' exp"
+    p[0] = str(p[1][0])+str(p[3][0])+"SUP\n"
+
+
+def p_condition_LESSER(p):
+    "context : exp '<' exp"
+    p[0] = str(p[1][0])+str(p[3][0])+"INF\n"
+
+
+def p_condition_GREATERQ(p):
+    "context : exp GREATERQ exp"
+    p[0] = str(p[1][0])+str(p[3][0])+"SUPEQ\n"
+
+
+def p_condition_LESSERQ(p):
+    "context : exp LESSERQ exp"
+    p[0] = str(p[1][0])+str(p[3][0])+"INFEQ\n"
+
+
+def p_context(p):
+    "context : condition"
+    p[0] = p[1]
+
+# endregion
+
+# region EXPRESSION FUNCTIONS
+
+
+def p_plus_expression(p):
+    "exp : exp '+' term"
+    p[0] = (p[1][0] + p[3][0] + "ADD\n", p[1][1] + p[3][1])
+
+
+def p_minus_expression(p):
+    "exp : exp '-' term"
+    p[0] = (p[1][0] + p[3][0] + "SUB\n", p[1][1] - p[3][1])
+
+
+def p_expression(p):
+    "exp : term"
+    p[0] = (p[1][0], p[1][1])
+
+
+# endregion
+
+# region TERM FUNCTIONS
+def p_division_term(p):
+    "term : term '/' factor"
+    p[0] = (p[1][0] + p[3][0] + "DIV\n", p[1][1] / p[3][1])
+
+
+def p_multiplication_term(p):
+    "term : term '*' factor"
+    p[0] = (p[1][0] + p[3][0] + "MUL\n", p[1][1] * p[3][1])
+
+
+def p_mod_term(p):
+    "term : term '%' factor"
+    p[0] = (p[1][0] + p[3][0] + "MOD\n", p[1][1] % p[3][1])
+
+
+def p_term(p):
+    "term : factor"
+    p[0] = (p[1][0], p[1][1])
+# endregion
+
+# region FACTORS FUNCTIONS
+
+
+def p_num_factor(p):
+    "factor : NUM"
+    p[0] = ("PUSHI "+p[1]+"\n", int(p[1]))
+
+
+def p_id_factor(p):
+    "factor : Id"
+    p[0] = (p[1][1], p[1][2])
+
+# endregion
+
+
+def p_Id(p):
+    "Id : ID"
+    if p[1] not in parser.variables:
+        parser.success = False
+        p[0] = ("ERROR\n", "ERROR\n")
+        print("Variable not declared: " + p[1])
+    else:
+        p[0] = ("STOREG " + str(parser.variables[p[1]])+"\n", "PUSHG " +
+                str(parser.variables[p[1]])+"\n", int(parser.values[p[1]]), p[1])
+# definição Id = ID
 
 
 def p_error(p):
@@ -103,22 +293,18 @@ def p_error(p):
 parser = yacc.yacc()
 parser.variables = {}
 parser.success = True
+parser.values = {}
+parser.count = 0
+parser.label = 0
 
-"""
 fIn = input('FileInput: ')
-if not os.path.exists(fIn):
-    print("Nao encontrado")
-else:
-    fOut = input('FileOutput: ')
-    with open(fIn, 'r') as file:
-        code = file.read()
-    out = parser.parse(code)
-    if (parser.success == True):
-        print("Parsing teminou com sucesso!")
-        with open(fOut, 'w') as output:
-            output.write(str(out))
-    else:
-        print("Parsing nao terminou com sucesso.......")
-"""
-# print(parser.variaveis)
-# print(parser.var_valores)
+fOut = input('FileOutput: ')
+
+with open(fIn, 'r') as file:
+    code = file.read()
+out = parser.parse(code)
+with open(fOut, 'w') as output:
+    output.write(str(out))
+
+print(parser.variables)
+print(parser.values)

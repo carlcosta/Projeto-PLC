@@ -1,23 +1,21 @@
 import ply.lex as lex
 import sys
 
-tokens = ['INT', 'ID', 'STR', 'NUM' ,
+
+literals = ['%', '*', '+', '/', '-', '=',
+            '(', ')', '.', '<', '>', ',', '!', '{', '}', '[', ']']
+
+
+tokens = ['INT', 'ID', 'STR', 'NUM',
           'MAIN', 'PRINT', 'READ',
           'IF', 'ELSE',
           'EQUALS', 'GREATERQ', 'LESSERQ',
           'REPEAT', 'UNTIL', 'WHILE', 'DO',
           'AND', 'OR', 'NOT']
 
-literals = ['%', '*', '+', '/', '-', '=',
-            '(', ')', '.', '<', '>', ',', '!', '{', '}', '[', ']']
-
 
 def t_INT(t):
     r'int'
-    return t
-
-def t_ID(t):
-    r'\w+'
     return t
 
 
@@ -33,8 +31,9 @@ def t_NUM(t):
 
 
 def t_MAIN(t):
-    r'main'
+    r'Main'
     return t
+
 
 def t_PRINT(t):
     r'Print'
@@ -46,12 +45,12 @@ def t_READ(t):
     return t
 
 
-def t_if(t):
+def t_IF(t):
     r'if'
     return t
 
 
-def t_else(t):
+def t_ELSE(t):
     r'else'
     return t
 
@@ -106,11 +105,17 @@ def t_NOT(t):
     return t
 
 
+def t_ID(t):
+    r'\w+'
+    return t
+
+
+t_ignore = " \t\n"
+
+
 def t_error(t):
     print('Illegal character: ', t.value[0])
     t.lexer.skip(1)
 
-
-t_ignore = " \t\n"
 
 lexer = lex.lex()
