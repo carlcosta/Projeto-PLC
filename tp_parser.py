@@ -61,11 +61,11 @@ def p_int_num_declaration(p):
 # region ALL COMMANDS FUNCTIONS
 
 
-
 def p_empty_commands(p):
     "commands : "
     p[0] = ""
 # sem comandos
+
 
 def p_commands(p):
     "commands : command commands"
@@ -79,6 +79,7 @@ def p_print_command(p):
     "command : cmd_prints"
     p[0] = p[1]
 # especificação do cmd_print (será desenvolvido as várias alternativas de print)
+
 
 def p_cmd_prints_all(p):
     "cmd_prints : PRINT '(' cmd_print prints ')' "
@@ -130,7 +131,7 @@ def p_read_id_command(p):
 
 
 def p_if_command(p):
-    "commands : cmd_if"
+    "command : cmd_if"
     p[0] = p[1]
 
 
@@ -143,7 +144,7 @@ def p_cmd_if(p):
 
 
 def p_if_else_command(p):
-    "commands : cmd_if_else"
+    "command : cmd_if_else"
     p[0] = p[1]
 
 
@@ -154,18 +155,17 @@ def p_cmd_if_else(p):
     parser.label += 1
 
 
-
-
 # endregion
 
 def p_atribution_command(p):
-    "commands : cmd_atb"
+    "command : attribution"
     p[0] = p[1]
 
 
 def p_cmd_atb(p):
-    "cmd_atb : Id '=' exp"
+    "attribution : Id '=' exp"
     p[0] = p[3] + p[1][0]
+# igualdade de um Id para uma expressão || resultado = num1 + num2 || resultado = num1 - 2 etc..
 
 
 # endregion

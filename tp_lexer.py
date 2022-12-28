@@ -69,12 +69,9 @@ def t_LESSERQ(t):
     return t
 
 """
-
 def t_WHILE(t):
     r'While'
     return t
-
-
 def t_DO(t):
     r'Do'
     return t
