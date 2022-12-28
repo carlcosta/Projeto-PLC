@@ -28,7 +28,7 @@ def p_empty_declarations(p):
 
 
 def p_declarations(p):
-    "declarations : declarations declaration"
+    "declarations : declaration declarations"
     p[0] = p[1] + p[2]
 # especificação de declarações.... uma ou mais declarações
 
@@ -37,11 +37,9 @@ def p_int_declaration(p):
     "declaration : INT ID"
     if p[2] in parser.variables:
         parser.success = False
-        p[0] = "ERROR"
         print("Multiple variable declaration " + p[2])
     else:
         parser.variables[p[2]] = parser.count
-        parser.values[p[2]] = 0
         p[0] = 'PUSHI 0\n'
         parser.count += 1
 # declaração de um inteiro sem valor || int ID
@@ -51,11 +49,9 @@ def p_int_num_declaration(p):
     "declaration : INT ID '=' NUM"
     if p[2] in parser.variables:
         parser.success = False
-        p[0] = "ERROR"
         print("Multiple variable declaration " + p[2])
     else:
         parser.variables[p[2]] = parser.count
-        parser.values[p[2]] = int(p[4])
         p[0] = "PUSHI "+str(p[4])+"\n"
         parser.count += 1
 # declaração de int id com um certo valor || ex: int num1 = 4
@@ -65,14 +61,14 @@ def p_int_num_declaration(p):
 # region ALL COMMANDS FUNCTIONS
 
 
+
 def p_empty_commands(p):
     "commands : "
     p[0] = ""
 # sem comandos
 
-
 def p_commands(p):
-    "commands : commands command"
+    "commands : command commands"
     p[0] = p[1]+p[2]
 # especificação dos comandos 1 ou mais a realizar
 
@@ -83,7 +79,6 @@ def p_print_command(p):
     "command : cmd_prints"
     p[0] = p[1]
 # especificação do cmd_print (será desenvolvido as várias alternativas de print)
-
 
 def p_cmd_prints_all(p):
     "cmd_prints : PRINT '(' cmd_print prints ')' "
@@ -141,7 +136,7 @@ def p_if_command(p):
 
 def p_cmd_if(p):
     "cmd_if : IF condition '{' commands '}'"
-    p[0] = str(p[2])+"JZ IF " + str(parser.label) + "\n" + \
+    p[0] = str(p[2])+"JZ IF" + str(parser.label) + "\n" + \
         str(p[4])+"IF"+str(parser.label)+":\n"
 
     parser.label += 1
@@ -157,6 +152,18 @@ def p_cmd_if_else(p):
     p[0] = p[2] + "JZ IF " + str(parser.label)+"\n"+p[4]+"JUMP IFEND" + str(
         parser.label) + "\nIF" + str(parser.label) + ":\n"+p[8]+"IFEND"+str(parser.label)+":\n"
     parser.label += 1
+
+
+def p_atribution_command(p):
+    "commands : cmd_atb"
+    p[0] = p[1]
+
+
+def p_cmd_atb(p):
+    "cmd_atb : Id '=' exp"
+    p[0] = p[3] + p[1][0]
+
+
 # endregion
 
 
@@ -187,27 +194,27 @@ def p_condition_OR(p):
 
 def p_condition_EQUALS(p):
     "context : exp EQUALS exp"
-    p[0] = str(p[1][0])+str(p[3][0])+"EQUAL\n"
+    p[0] = str(p[1])+str(p[3])+"EQUAL\n"
 
 
 def p_condition_GREATER(p):
     "context : exp '>' exp"
-    p[0] = str(p[1][0])+str(p[3][0])+"SUP\n"
+    p[0] = str(p[1])+str(p[3])+"SUP\n"
 
 
 def p_condition_LESSER(p):
     "context : exp '<' exp"
-    p[0] = str(p[1][0])+str(p[3][0])+"INF\n"
+    p[0] = str(p[1])+str(p[3])+"INF\n"
 
 
 def p_condition_GREATERQ(p):
     "context : exp GREATERQ exp"
-    p[0] = str(p[1][0])+str(p[3][0])+"SUPEQ\n"
+    p[0] = str(p[1])+str(p[3])+"SUPEQ\n"
 
 
 def p_condition_LESSERQ(p):
     "context : exp LESSERQ exp"
-    p[0] = str(p[1][0])+str(p[3][0])+"INFEQ\n"
+    p[0] = str(p[1])+str(p[3])+"INFEQ\n"
 
 
 def p_context(p):
@@ -221,40 +228,41 @@ def p_context(p):
 
 def p_plus_expression(p):
     "exp : exp '+' term"
-    p[0] = (p[1][0] + p[3][0] + "ADD\n", p[1][1] + p[3][1])
+    p[0] = p[1] + p[3] + "ADD\n"
 
 
 def p_minus_expression(p):
     "exp : exp '-' term"
-    p[0] = (p[1][0] + p[3][0] + "SUB\n", p[1][1] - p[3][1])
+    p[0] = p[1] + p[3] + "SUB\n"
 
 
 def p_expression(p):
     "exp : term"
-    p[0] = (p[1][0], p[1][1])
-
+    p[0] = p[1]
 
 # endregion
 
 # region TERM FUNCTIONS
+
+
 def p_division_term(p):
     "term : term '/' factor"
-    p[0] = (p[1][0] + p[3][0] + "DIV\n", p[1][1] / p[3][1])
+    p[0] = p[1] + p[3] + "DIV\n"
 
 
 def p_multiplication_term(p):
     "term : term '*' factor"
-    p[0] = (p[1][0] + p[3][0] + "MUL\n", p[1][1] * p[3][1])
+    p[0] = p[1] + p[3] + "MUL\n"
 
 
 def p_mod_term(p):
     "term : term '%' factor"
-    p[0] = (p[1][0] + p[3][0] + "MOD\n", p[1][1] % p[3][1])
+    p[0] = p[1] + p[3] + "MOD\n"
 
 
 def p_term(p):
     "term : factor"
-    p[0] = (p[1][0], p[1][1])
+    p[0] = p[1]
 # endregion
 
 # region FACTORS FUNCTIONS
@@ -262,12 +270,12 @@ def p_term(p):
 
 def p_num_factor(p):
     "factor : NUM"
-    p[0] = ("PUSHI "+p[1]+"\n", int(p[1]))
+    p[0] = "PUSHI "+p[1]+"\n"
 
 
 def p_id_factor(p):
     "factor : Id"
-    p[0] = (p[1][1], p[1][2])
+    p[0] = p[1][1]
 
 # endregion
 
@@ -276,11 +284,10 @@ def p_Id(p):
     "Id : ID"
     if p[1] not in parser.variables:
         parser.success = False
-        p[0] = ("ERROR\n", "ERROR\n")
         print("Variable not declared: " + p[1])
     else:
         p[0] = ("STOREG " + str(parser.variables[p[1]])+"\n", "PUSHG " +
-                str(parser.variables[p[1]])+"\n", int(parser.values[p[1]]), p[1])
+                str(parser.variables[p[1]])+"\n", p[1])
 # definição Id = ID
 
 
@@ -293,7 +300,7 @@ def p_error(p):
 parser = yacc.yacc()
 parser.variables = {}
 parser.success = True
-parser.values = {}
+
 parser.count = 0
 parser.label = 0
 
@@ -307,4 +314,3 @@ with open(fOut, 'w') as output:
     output.write(str(out))
 
 print(parser.variables)
-print(parser.values)
