@@ -10,7 +10,7 @@ tokens = ['INT', 'ID', 'STR', 'NUM',
           'MAIN', 'PRINT', 'READ',
           'IF', 'ELSE',
           'EQUALS', 'GREATERQ', 'LESSERQ',
-          #'WHILE', 'DO',
+          'WHILE', 'DO',
           'AND', 'OR', 'NOT']
 
 
@@ -68,14 +68,17 @@ def t_LESSERQ(t):
     r'<='
     return t
 
-"""
+
+
 def t_WHILE(t):
     r'While'
     return t
+
+
 def t_DO(t):
     r'Do'
     return t
-"""
+
 
 def t_AND(t):
     r'AND'

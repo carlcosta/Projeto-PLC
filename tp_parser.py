@@ -167,6 +167,21 @@ def p_cmd_atb(p):
     p[0] = p[3] + p[1][0]
 # igualdade de um Id para uma expressão || resultado = num1 + num2 || resultado = num1 - 2 etc..
 
+#region WHILE DO FUNCTIONS
+
+def p_do_while_command(p):
+    "command : cmd_while"
+    p[0] = p[1]
+
+
+def p_cmd_while(p):
+    "cmd_while : WHILE condition DO '{' commands '}'"
+    p[0] = "WHILE" + str(parser.loop)+":\n" + p[2] + "JZ ENDWHILE"+str(parser.loop) + \
+        "\n"+p[5] + "JUMP WHILE"+str(parser.loop) + \
+        "\n"+"ENDWHILE"+str(parser.loop)+":\n"
+    parser.loop += 1
+
+#endregion
 
 # endregion
 
@@ -304,6 +319,7 @@ parser.success = True
 
 parser.count = 0
 parser.label = 0
+parser.loop = 1
 
 fIn = input('FileInput: ')
 fOut = input('FileOutput: ')
