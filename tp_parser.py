@@ -154,6 +154,10 @@ def p_cmd_if_else(p):
     parser.label += 1
 
 
+
+
+# endregion
+
 def p_atribution_command(p):
     "commands : cmd_atb"
     p[0] = p[1]
@@ -162,9 +166,6 @@ def p_atribution_command(p):
 def p_cmd_atb(p):
     "cmd_atb : Id '=' exp"
     p[0] = p[3] + p[1][0]
-
-
-# endregion
 
 
 # endregion
