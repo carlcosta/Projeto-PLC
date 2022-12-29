@@ -392,7 +392,7 @@ def p_id_array(p):
         print("Multiple variable declaration " + p[1])
         sys.exit(0)
     else:
-        p[0] = ("PUSHGP\nPUSHI " + str(parser.variables[p[1]])+"\nPADD\n", p[3],p[1],p[3])
+        p[0] = ("PUSHGP\nPUSHI " + str(parser.variables[p[1]])+"\nPADD\n", p[3])
 
         # endregion
 
