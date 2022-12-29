@@ -403,7 +403,7 @@ parser.success = True
 
 parser.count = 0
 parser.label = 0
-parser.loop = 1
+parser.loop = 0
 parser.arraycount = 0
 
 fIn = input('FileInput: ')
