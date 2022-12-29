@@ -38,6 +38,7 @@ def p_int_declaration(p):
     if p[2] in parser.variables:
         parser.success = False
         print("Multiple variable declaration " + p[2])
+        sys.exit(0)
     else:
         parser.variables[p[2]] = parser.count
         p[0] = 'PUSHI 0\n'
@@ -50,6 +51,7 @@ def p_int_num_declaration(p):
     if p[2] in parser.variables:
         parser.success = False
         print("Multiple variable declaration " + p[2])
+        sys.exit(0)
     else:
         parser.variables[p[2]] = parser.count
         p[0] = "PUSHI "+str(p[4])+"\n"
@@ -167,7 +169,8 @@ def p_cmd_atb(p):
     p[0] = p[3] + p[1][0]
 # igualdade de um Id para uma expressão || resultado = num1 + num2 || resultado = num1 - 2 etc..
 
-#region WHILE DO FUNCTIONS
+# region WHILE DO FUNCTIONS
+
 
 def p_do_while_command(p):
     "command : cmd_while"
@@ -181,7 +184,7 @@ def p_cmd_while(p):
         "\n"+"ENDWHILE"+str(parser.loop)+":\n"
     parser.loop += 1
 
-#endregion
+# endregion
 
 # endregion
 
@@ -301,6 +304,7 @@ def p_Id(p):
     if p[1] not in parser.variables:
         parser.success = False
         print("Variable not declared: " + p[1])
+        sys.exit(0)
     else:
         p[0] = ("STOREG " + str(parser.variables[p[1]])+"\n", "PUSHG " +
                 str(parser.variables[p[1]])+"\n", p[1])
@@ -310,7 +314,87 @@ def p_Id(p):
 def p_error(p):
     print("Syntax error!")
     parser.success = False
+    sys.exit(0)
 # definição de erro de sintaxe
+
+# region ALL FUNCTIONS RELATED TO SIMPLE ARRAYS
+
+
+def p_def_array_values(p):
+    "values : NUM ',' values"
+    p[0] = "PUSHI "+p[1]+"\n"+p[3]
+    parser.arraycount += 1
+
+
+def p_def_array_num(p):
+    "values : NUM"
+    p[0] = "PUSHI "+p[1]+"\n"
+    parser.arraycount += 1
+
+
+def p_def_empty_array(p):
+    "values :"
+    p[0] = ""
+
+
+def p_array_declaration(p):
+    "declaration : INT ID '[' NUM ']'"
+    if p[2] in parser.variables:
+        parser.success = False
+        print("Multiple variable declaration " + p[2])
+        sys.exit(0)
+    else:
+
+        parser.variables[p[2]] = parser.count
+        p[0] = "PUSHN " + p[4] + "\n"
+        parser.count += int(p[4])
+
+
+def p_array_num_declaration(p):
+    "declaration : INT ID '[' NUM ']' '=' values"
+    if p[2] in parser.variables:
+        parser.success = False
+        print("Multiple variable declaration " + p[2])
+        sys.exit(0)
+
+    elif (parser.arraycount) != int(p[4]):
+        parser.success = False
+        print("Index out of range -> variable: " + p[2])
+        sys.exit(0)
+    else:
+        parser.variables[p[2]] = parser.count
+        p[0] = p[7]
+        parser.count += int(p[4])
+        parser.arraycount = 0
+
+
+def p_print_command_id_Array(p):
+    "cmd_print : ID_Array"
+    p[0] = p[1][0]+p[1][1] + "LOADN\n"+"WRITEI\n"
+
+
+def p_read_id_array_command(p):
+    "cmd_read : READ ID_Array"
+    p[0] = p[1][0]+p[1][1] + "READ\nATOI\nSTOREN\n"
+
+def p_id_array_factor(p) :
+    "factor : ID_Array"   
+    p[0]=(p[1][0]+p[1][1]+"LOADN\n",p[1][2])
+
+def p_Comando_Array_Exp(p):
+    "command : ID_Array '=' exp"
+    p[0]=p[1][0]+p[1][1]+p[3]+"STOREN\n"
+    
+def p_id_array(p):
+    "ID_Array : ID '[' factor ']'"
+    if (p[1] not in parser.variables):
+        parser.success = False
+        print("Multiple variable declaration " + p[1])
+        sys.exit(0)
+    else:
+        p[0] = ("PUSHGP\nPUSHI " + str(parser.variables[p[1]])+"\nPADD\n", p[3],p[1],p[3])
+
+        # endregion
 
 
 parser = yacc.yacc()
@@ -320,6 +404,7 @@ parser.success = True
 parser.count = 0
 parser.label = 0
 parser.loop = 1
+parser.arraycount = 0
 
 fIn = input('FileInput: ')
 fOut = input('FileOutput: ')
