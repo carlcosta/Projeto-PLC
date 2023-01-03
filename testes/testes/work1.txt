@@ -1,8 +1,0 @@
-{
-    Main 
-    int variavel1 = 5
-    int asd
-    int ola 
-
-    if (ola == asd){ Print ( " xau" )}
-}
