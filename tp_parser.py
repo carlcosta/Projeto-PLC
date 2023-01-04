@@ -411,7 +411,7 @@ def p_double_values(p):
 def p_empty_double_values(p):
     "d_values :"
     p[0] = ""
-    
+
 
 def d_values_values(p):
     "d_values : '[' values ']'"
@@ -437,13 +437,13 @@ def p_double_array_num_declaration(p):
         parser.success = False
         print("Multiple variable declaration " + p[2])
         sys.exit(0)
-    elif (parser.arraycount - int(p[7])) != int(p[4]) or (parser.arraycount - int(p[4])) != int(p[7]):
+    elif (parser.arraycount != int(p[4])*int(p[7])) or (parser.darraycount != int(p[7])):
         parser.success = False
         print("Index out of range -> variable: " + p[2])
         sys.exit(0)
     else:
         parser.variables[p[2]] = parser.count
-        p[0] = "PUSHN " + str(int(p[4])*int(p[7])) + "\n"
+        p[0] = p[10]
         parser.count += (int(p[4]) * int(p[7]))
         parser.arraycount = 0
         parser.darraycount = 0
@@ -453,13 +453,16 @@ def p_double_array_exp_command(p):
     "command : ID_Double_Array '=' exp"
     p[0] = p[1][0]+p[1][1]+p[3]+"STOREN\n"
 
+
 def p_print_command_double_array(p):
     "cmd_print : ID_Double_Array"
     p[0] = p[1][0]+p[1][1] + "LOADN\n"+"WRITEI\n"
 
+
 def p_read_command_double_array(p):
     "cmd_read : ID_Double_Array"
     p[0] = p[1][0]+p[1][1] + "READ\nATOI\nSTOREN\n"
+
 
 def p_id_double_array_factor(p):
     "factor : ID_Double_Array"
@@ -474,7 +477,7 @@ def p_id_double_array(p):
         sys.exit(0)
     else:
         p[0] = ("PUSHGP\nPUSHI " + str(parser.variables[p[1]]) +
-                "\nPADD\n", p[3] + "PUSHI " "69"+ "\nMUL\n" + p[6] + "ADD\n")
+                "\nPADD\n", p[3] + "PUSHI " "69" + "\nMUL\n" + p[6] + "ADD\n")
 
 
 # endregion
