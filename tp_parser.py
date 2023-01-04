@@ -446,6 +446,7 @@ def p_double_array_num_declaration(p):
         parser.variables[p[2]] = parser.count
         p[0] = p[10]
         parser.count += (int(p[4]) * int(p[7]))
+        parser.size[p[2]] = int(p[7])
         parser.arraycount = 0
         parser.darraycount = 0
 
@@ -478,7 +479,7 @@ def p_id_double_array(p):
         sys.exit(0)
     else:
         p[0] = ("PUSHGP\nPUSHI " + str(parser.variables[p[1]]) +
-                "\nPADD\n", p[3] + "PUSHI "+ str(len(p[6])) + "\nMUL\n" + p[6] + "ADD\n")
+                "\nPADD\n", p[3] + "PUSHI "+ str(parser.size[p[1]]) + "\nMUL\n" + p[6] + "ADD\n")
 
 
 # endregion
