@@ -437,8 +437,9 @@ def p_double_array_num_declaration(p):
         parser.success = False
         print("Multiple variable declaration " + p[2])
         sys.exit(0)
-    elif (parser.arraycount != int(p[4])*int(p[7])) or (parser.darraycount != int(p[7])):
+    elif (parser.arraycount != int(p[4])*int(p[7])) or (parser.darraycount != int(p[4])):
         parser.success = False
+        print(parser.darraycount)
         print("Index out of range -> variable: " + p[2])
         sys.exit(0)
     else:
@@ -477,7 +478,7 @@ def p_id_double_array(p):
         sys.exit(0)
     else:
         p[0] = ("PUSHGP\nPUSHI " + str(parser.variables[p[1]]) +
-                "\nPADD\n", p[3] + "PUSHI " "69" + "\nMUL\n" + p[6] + "ADD\n")
+                "\nPADD\n", p[3] + "PUSHI "+ str(len(p[6])) + "\nMUL\n" + p[6] + "ADD\n")
 
 
 # endregion
@@ -489,6 +490,7 @@ parser.success = True
 parser.count = 0
 parser.label = 0
 parser.loop = 0
+parser.size = {}
 parser.arraycount = 0
 parser.darraycount = 0
 
