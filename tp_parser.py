@@ -4,6 +4,9 @@ import os
 import sys
 from tp_lexer import tokens
 
+# shift+alt+f
+
+
 def p_program(p):
     "program : '{' MAIN body '}' "
     p[0] = p[3]
@@ -374,14 +377,17 @@ def p_read_id_array_command(p):
     "cmd_read : READ ID_Array"
     p[0] = p[1][0]+p[1][1] + "READ\nATOI\nSTOREN\n"
 
-def p_id_array_factor(p) :
-    "factor : ID_Array"   
-    p[0]=(p[1][0]+p[1][1]+"LOADN\n",p[1][2])
 
-def p_Comando_Array_Exp(p):
+def p_id_array_factor(p):
+    "factor : ID_Array"
+    p[0] = (p[1][0]+p[1][1]+"LOADN\n", p[1][2])
+
+
+def p_array_exp_command(p):
     "command : ID_Array '=' exp"
-    p[0]=p[1][0]+p[1][1]+p[3]+"STOREN\n"
-    
+    p[0] = p[1][0]+p[1][1]+p[3]+"STOREN\n"
+
+
 def p_id_array(p):
     "ID_Array : ID '[' factor ']'"
     if (p[1] not in parser.variables):
@@ -394,6 +400,85 @@ def p_id_array(p):
         # endregion
 
 
+# region ALL FUNCTIONS RELATED TO DOUBLE ARRAYS
+
+def p_double_values(p):
+    "d_values : '[' values ']' d_values"
+    p[0] = p[2] + p[4]
+    parser.darraycount += 1
+
+
+def p_empty_double_values(p):
+    "d_values :"
+    p[0] = ""
+    
+
+def d_values_values(p):
+    "d_values : '[' values ']'"
+    p[0] = p[2]
+    parser.darraycount += 1
+
+
+def p_double_array_declaration(p):
+    "declaration : INT ID '[' NUM ']' '[' NUM ']'"
+    if p[2] in parser.variables:
+        parser.success = False
+        print("Multiple variable declaration " + p[2])
+        sys.exit(0)
+    else:
+        parser.variables[p[2]] = parser.count
+        p[0] = "PUSHN " + str(int(p[4])*int(p[7])) + "\n"
+        parser.count += (int(p[4]) * int(p[7]))
+
+
+def p_double_array_num_declaration(p):
+    "declaration : INT ID '[' NUM ']' '[' NUM ']' '=' d_values "
+    if p[2] in parser.variables:
+        parser.success = False
+        print("Multiple variable declaration " + p[2])
+        sys.exit(0)
+    elif (parser.arraycount - int(p[7])) != int(p[4]) or (parser.arraycount - int(p[4])) != int(p[7]):
+        parser.success = False
+        print("Index out of range -> variable: " + p[2])
+        sys.exit(0)
+    else:
+        parser.variables[p[2]] = parser.count
+        p[0] = "PUSHN " + str(int(p[4])*int(p[7])) + "\n"
+        parser.count += (int(p[4]) * int(p[7]))
+        parser.arraycount = 0
+        parser.darraycount = 0
+
+
+def p_double_array_exp_command(p):
+    "command : ID_Double_Array '=' exp"
+    p[0] = p[1][0]+p[1][1]+p[3]+"STOREN\n"
+
+def p_print_command_double_array(p):
+    "cmd_print : ID_Double_Array"
+    p[0] = p[1][0]+p[1][1] + "LOADN\n"+"WRITEI\n"
+
+def p_read_command_double_array(p):
+    "cmd_read : ID_Double_Array"
+    p[0] = p[1][0]+p[1][1] + "READ\nATOI\nSTOREN\n"
+
+def p_id_double_array_factor(p):
+    "factor : ID_Double_Array"
+    p[0] = (p[1][0]+p[1][1]+"LOADN\n")
+
+
+def p_id_double_array(p):
+    "ID_Double_Array : ID '[' factor ']' '[' factor ']'"
+    if (p[1] not in parser.variables):
+        parser.success = False
+        print("Multiple variable declaration " + p[1])
+        sys.exit(0)
+    else:
+        p[0] = ("PUSHGP\nPUSHI " + str(parser.variables[p[1]]) +
+                "\nPADD\n", p[3] + "PUSHI " "69"+ "\nMUL\n" + p[6] + "ADD\n")
+
+
+# endregion
+
 parser = yacc.yacc()
 parser.variables = {}
 parser.success = True
@@ -402,6 +487,7 @@ parser.count = 0
 parser.label = 0
 parser.loop = 0
 parser.arraycount = 0
+parser.darraycount = 0
 
 fIn = input('FileInput: ')
 fOut = input('FileOutput: ')
