@@ -152,7 +152,7 @@ def p_if_else_command(p):
 
 def p_cmd_if_else(p):
     "cmd_if_else : IF condition '{' commands '}' ELSE '{' commands '}'"
-    p[0] = p[2] + "JZ IF " + str(parser.label)+"\n"+p[4]+"JUMP IFEND" + str(
+    p[0] = p[2] + "JZ IF" + str(parser.label)+"\n"+p[4]+"JUMP IFEND" + str(
         parser.label) + "\nIF" + str(parser.label) + ":\n"+p[8]+"IFEND"+str(parser.label)+":\n"
     parser.label += 1
 
@@ -437,16 +437,14 @@ def p_double_array_num_declaration(p):
         parser.success = False
         print("Multiple variable declaration " + p[2])
         sys.exit(0)
-    elif (parser.arraycount != int(p[4])*int(p[7])) or (parser.darraycount != int(p[4])):
+    elif (parser.arraycount - int(p[7])) != int(p[4]) or (parser.arraycount - int(p[4])) != int(p[7]):
         parser.success = False
-        print(parser.darraycount)
         print("Index out of range -> variable: " + p[2])
         sys.exit(0)
     else:
         parser.variables[p[2]] = parser.count
-        p[0] = p[10]
+        p[0] = "PUSHN " + str(int(p[4])*int(p[7])) + "\n"
         parser.count += (int(p[4]) * int(p[7]))
-        parser.size[p[2]] = int(p[7])
         parser.arraycount = 0
         parser.darraycount = 0
 
@@ -479,7 +477,7 @@ def p_id_double_array(p):
         sys.exit(0)
     else:
         p[0] = ("PUSHGP\nPUSHI " + str(parser.variables[p[1]]) +
-                "\nPADD\n", p[3] + "PUSHI "+ str(parser.size[p[1]]) + "\nMUL\n" + p[6] + "ADD\n")
+                "\nPADD\n", p[3] + "PUSHI " "69" + "\nMUL\n" + p[6] + "ADD\n")
 
 
 # endregion
@@ -491,7 +489,6 @@ parser.success = True
 parser.count = 0
 parser.label = 0
 parser.loop = 0
-parser.size = {}
 parser.arraycount = 0
 parser.darraycount = 0
 
