@@ -234,6 +234,10 @@ def p_condition_GREATERQ(p):
 def p_condition_LESSERQ(p):
     "context : exp LESSERQ exp"
     p[0] = str(p[1])+str(p[3])+"INFEQ\n"
+    
+def p_condition_exp(p):
+    "context : exp"
+    p[0] = strp[1]
 
 
 def p_context(p):
