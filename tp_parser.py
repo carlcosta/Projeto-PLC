@@ -4,9 +4,6 @@ import os
 import sys
 from tp_lexer import tokens
 
-# shift+alt+f
-
-
 def p_program(p):
     "program : '{' MAIN body '}' "
     p[0] = p[3]
