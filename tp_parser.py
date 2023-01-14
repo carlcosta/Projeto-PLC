@@ -234,7 +234,7 @@ def p_condition_LESSERQ(p):
     
 def p_condition_exp(p):
     "context : exp"
-    p[0] = strp[1]
+    p[0] = str(p[1])
 
 
 def p_context(p):
