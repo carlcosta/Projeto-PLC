@@ -4,6 +4,7 @@ import os
 import sys
 from tp_lexer import tokens
 
+
 def p_program(p):
     "program : '{' MAIN body '}' "
     p[0] = p[3]
@@ -231,7 +232,8 @@ def p_condition_GREATERQ(p):
 def p_condition_LESSERQ(p):
     "context : exp LESSERQ exp"
     p[0] = str(p[1])+str(p[3])+"INFEQ\n"
-    
+
+
 def p_condition_exp(p):
     "context : exp"
     p[0] = str(p[1])
@@ -438,7 +440,7 @@ def p_double_array_num_declaration(p):
         parser.success = False
         print("Multiple variable declaration " + p[2])
         sys.exit(0)
-    elif (parser.arraycount - int(p[7])) != int(p[4]) or (parser.arraycount - int(p[4])) != int(p[7]):
+    elif (parser.arraycount != int(p[4])*int(p[7])) or (parser.darraycount != int(p[4])):
         parser.success = False
         print("Index out of range -> variable: " + p[2])
         sys.exit(0)
