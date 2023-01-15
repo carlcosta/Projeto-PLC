@@ -4,8 +4,6 @@ import os
 import sys
 from tp_lexer import tokens
 
-# shift+alt+f
-
 
 def p_program(p):
     "program : '{' MAIN body '}' "
@@ -444,7 +442,6 @@ def p_double_array_num_declaration(p):
         sys.exit(0)
     elif (parser.arraycount != int(p[4])*int(p[7])) or (parser.darraycount != int(p[4])):
         parser.success = False
-        print(parser.darraycount)
         print("Index out of range -> variable: " + p[2])
         sys.exit(0)
     else:
