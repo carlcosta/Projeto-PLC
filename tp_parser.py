@@ -4,6 +4,8 @@ import os
 import sys
 from tp_lexer import tokens
 
+# shift+alt+f
+
 
 def p_program(p):
     "program : '{' MAIN body '}' "
@@ -234,11 +236,6 @@ def p_condition_LESSERQ(p):
     p[0] = str(p[1])+str(p[3])+"INFEQ\n"
 
 
-def p_condition_exp(p):
-    "context : exp"
-    p[0] = str(p[1])
-
-
 def p_context(p):
     "context : condition"
     p[0] = p[1]
@@ -386,6 +383,11 @@ def p_id_array_factor(p):
     p[0] = (p[1][0]+p[1][1]+"LOADN\n", p[1][2])
 
 
+def p_condition_exp(p):
+    "context : exp"
+    p[0] = str(p[1])
+
+
 def p_array_exp_command(p):
     "command : ID_Array '=' exp"
     p[0] = p[1][0]+p[1][1]+p[3]+"STOREN\n"
@@ -442,12 +444,14 @@ def p_double_array_num_declaration(p):
         sys.exit(0)
     elif (parser.arraycount != int(p[4])*int(p[7])) or (parser.darraycount != int(p[4])):
         parser.success = False
+        print(parser.darraycount)
         print("Index out of range -> variable: " + p[2])
         sys.exit(0)
     else:
         parser.variables[p[2]] = parser.count
-        p[0] = "PUSHN " + str(int(p[4])*int(p[7])) + "\n"
+        p[0] = p[10]
         parser.count += (int(p[4]) * int(p[7]))
+        parser.size[p[2]] = int(p[7])
         parser.arraycount = 0
         parser.darraycount = 0
 
@@ -480,7 +484,7 @@ def p_id_double_array(p):
         sys.exit(0)
     else:
         p[0] = ("PUSHGP\nPUSHI " + str(parser.variables[p[1]]) +
-                "\nPADD\n", p[3] + "PUSHI " "69" + "\nMUL\n" + p[6] + "ADD\n")
+                "\nPADD\n", p[3] + "PUSHI " + str(parser.size[p[1]]) + "\nMUL\n" + p[6] + "ADD\n")
 
 
 # endregion
@@ -492,6 +496,7 @@ parser.success = True
 parser.count = 0
 parser.label = 0
 parser.loop = 0
+parser.size = {}
 parser.arraycount = 0
 parser.darraycount = 0
 
