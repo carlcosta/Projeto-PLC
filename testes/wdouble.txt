@@ -1,6 +1,7 @@
 {
 
     Main
+    int flag
     int valor
     int i = 0
     int j = 0
@@ -15,7 +16,7 @@
         While ( j < 3) Do {
         if (valor == matriz[i][j]){
 
-            valor = 1
+            flag = 1
             counter = counter + 1
             j = j + 1
         }
@@ -28,7 +29,7 @@
         j = 0
     }
 
-    if (valor == 1){
+    if (flag == 1){
 
         Print("Valor encontrado: ")
         Print(valor)
